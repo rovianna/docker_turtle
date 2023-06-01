@@ -32,3 +32,27 @@ services:
     environment:
       - SPARK_MASTER_PORT=7077
       - SPARK_MASTER_WEBUI_PORT=8081
+
+
+  hive-server:
+    image: bde2020/hive-metastore-postgresql
+    container_name: hive-server
+    hostname: hive-server
+    ports:
+      - 10000:10000
+      - 9083:9083
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    depends_on:
+      - hive-metastore
+  
+  hive-metastore:
+    image: bde2020/hive-metastore-postgresql
+    container_name: hive-metastore
+    hostname: hive-metastore
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    volumes:
+      - ./data/hive:/var/lib/hive
