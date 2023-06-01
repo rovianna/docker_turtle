@@ -56,3 +56,55 @@ services:
       - POSTGRES_PASSWORD=admin
     volumes:
       - ./data/hive:/var/lib/hive
+
+  webserver:
+    image: apache/airflow:latest
+    container_name: airflow
+    hostname: airflow
+    ports:
+      - 8082:8080
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+    command: webserver
+    depends_on:
+      - scheduler
+      - postgres
+
+  scheduler:
+    image: apache/airflow:latest
+    command: scheduler
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+  
+  jupyter:
+    image: jupyter/pyspark-notebook
+    container_name: jupyter
+    hostname: jupyter
+    ports:
+      - 8889:8888
+    volumes:
+     - ./notebooks:/turtle/
+
+volumes:
+  pgdata:
