@@ -12,4 +12,23 @@ services:
       - 8888:8888
     volumes:
       - ./data:/data
-    
+
+  spark-worker-1:
+    image: bde2020/spark-worker
+    container_name: spark-worker-1
+    hostname: spark-worker-1
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+    depends_on:
+      - spark-master
+
+  spark-master:
+    image: bde2020/spark-master
+    container_name: spark-master
+    hostname: spark-master
+    ports:
+      - 7077:7077
+      - 8081:8081
+    environment:
+      - SPARK_MASTER_PORT=7077
+      - SPARK_MASTER_WEBUI_PORT=8081
